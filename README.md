@@ -10,16 +10,7 @@ Note: to use torch compile you have to disable cudamallochasync
 - Minimal precision impact (maintains quality)
 - Automatic activation on ComfyUI startup
 - Zero configuration required
-- **Fixes torch.compile CUDA allocator errors**
 
-## 🔧 What This Fixes
-
-This custom node resolves the common torch.compile error:
-```
-RuntimeError: cudaMallocAsync does not yet support checkPoolLiveAllocations
-```
-
-It automatically configures the CUDA memory allocator for optimal torch.compile compatibility.
 
 ## 📋 Requirements
 
@@ -68,7 +59,7 @@ python test_torch_compile.py
 This custom node enables:
 - `torch.backends.cuda.matmul.allow_tf32 = True`
 - `torch.backends.cudnn.allow_tf32 = True`
-- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` (fixes torch.compile)
+- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` 
 
 TF32 uses 10-bit mantissa (vs FP32's 23-bit) while maintaining the same 8-bit exponent range, providing:
 - Faster computation on tensor cores
