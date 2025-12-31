@@ -2,12 +2,24 @@
 
 Automatically enables TensorFloat-32 (TF32) acceleration for NVIDIA RTX 30/40/50 series GPUs in ComfyUI.
 
+**Now includes torch.compile CUDA allocator fix!**
+
 ## 🚀 Performance Benefits
 
 - **1.5-2x speedup** for diffusion models on Ampere/Ada/Blackwell GPUs
 - Minimal precision impact (maintains quality)
 - Automatic activation on ComfyUI startup
 - Zero configuration required
+- **Fixes torch.compile CUDA allocator errors**
+
+## 🔧 What This Fixes
+
+This custom node resolves the common torch.compile error:
+```
+RuntimeError: cudaMallocAsync does not yet support checkPoolLiveAllocations
+```
+
+It automatically configures the CUDA memory allocator for optimal torch.compile compatibility.
 
 ## 📋 Requirements
 
@@ -21,11 +33,23 @@ Automatically enables TensorFloat-32 (TF32) acceleration for NVIDIA RTX 30/40/50
 
 ## 📦 Installation
 
+### Method 1: ComfyUI Manager (Recommended)
+1. Open ComfyUI Manager
+2. Search for "TF32 Enabler"
+3. Click Install
+4. Restart ComfyUI
+
+### Method 2: Manual Installation
 ```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/marduk191/ComfyUI-TF32-Enabler.git
 # Or download and extract the zip file
 ```
+
+### Method 3: Direct Download
+1. Download the latest release
+2. Extract to `ComfyUI/custom_nodes/ComfyUI-TF32-Enabler/`
+3. Restart ComfyUI
 
 ## ✅ Verification
 
@@ -36,9 +60,19 @@ When ComfyUI starts, you should see:
 ============================================================
    Matmul TF32: True
    cuDNN TF32:  True
+   CUDA Allocator: expandable_segments:True
    GPU: NVIDIA GeForce RTX 5090
    Compute Capability: 10.0
+   ✅ torch.compile CUDA allocator fix applied
 ============================================================
+```
+
+## 🧪 Testing
+
+Run the included test script to verify torch.compile works:
+```bash
+cd ComfyUI/custom_nodes/ComfyUI-TF32-Enabler
+python test_torch_compile.py
 ```
 
 ## 🔧 Technical Details
@@ -46,11 +80,14 @@ When ComfyUI starts, you should see:
 This custom node enables:
 - `torch.backends.cuda.matmul.allow_tf32 = True`
 - `torch.backends.cudnn.allow_tf32 = True`
+- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` (fixes torch.compile)
 
 TF32 uses 10-bit mantissa (vs FP32's 23-bit) while maintaining the same 8-bit exponent range, providing:
 - Faster computation on tensor cores
 - Same dynamic range as FP32
 - Negligible quality loss for AI inference
+
+The expandable segments allocator configuration resolves memory allocation issues when using torch.compile with CUDA operations.
 
 ## 📊 Benchmarks
 
@@ -66,6 +103,12 @@ Works with all ComfyUI workflows and custom nodes. No conflicts expected.
 ## 📝 License
 
 MIT License - See LICENSE file for details
+
+## 👤 Author
+
+**marduk191**
+- Specialized in AI model optimization and ComfyUI development
+- Optimizing workflows for RTX 5090 hardware
 
 ## 🤝 Contributing
 
